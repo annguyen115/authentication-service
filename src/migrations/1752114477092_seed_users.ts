@@ -1,6 +1,6 @@
 import { Db } from 'mongodb';
 import { MigrationInterface } from 'mongo-migrate-ts';
-import { hashPassword } from '@utils/hash';
+import { hashPassword } from '@/utils/hash';
 import { appConfig } from '@config/config';
 
 export enum Role {
@@ -14,6 +14,9 @@ interface User {
   email: string;
   password: string;
   roles: string[];
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const users: User[] = [
@@ -23,14 +26,20 @@ const users: User[] = [
     email: 'user1@gmail.com',
     password: '123456',
     roles: [Role.USER],
+    isActive: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
 
   {
     username: 'user2',
     fullName: 'user2',
-    email: 'user1@gmail.com',
+    email: 'user2@gmail.com',
     password: '123456',
     roles: [Role.USER],
+    isActive: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
   {
     username: 'admin',
@@ -38,20 +47,28 @@ const users: User[] = [
     email: 'admin@gmail.com',
     password: '123456',
     roles: [Role.USER, Role.ADMIN],
+    isActive: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
 ];
 
+const USER_COLLECTION_NAME = appConfig.mongodb.collections.users;
+
 export class seed_users1752114477092 implements MigrationInterface {
   public async up(db: Db): Promise<void> {
-    const hashedUser = users.map(async user => {
-      const hashedPassword = await hashPassword(user.password);
-      return { ...user, password: hashedPassword };
-    });
+    const hashedUser = await Promise.all(
+      users.map(async user => ({
+        ...user,
+        password: await hashPassword(user.password),
+      })),
+    );
 
-    await db.collection(appConfig.mongodb.collections.users).insertMany(hashedUser);
+    await db.collection(USER_COLLECTION_NAME).insertMany(hashedUser);
   }
 
   public async down(db: Db): Promise<void> {
-    await db.collection(appConfig.mongodb.collections.users).deleteMany({});
+    const usernames = users.map(u => u.username);
+    await db.collection(USER_COLLECTION_NAME).deleteMany({ username: { $in: usernames } });
   }
 }
