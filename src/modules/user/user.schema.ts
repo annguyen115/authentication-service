@@ -14,16 +14,16 @@ export class User extends CommonDocument {
   password: string;
 
   @Prop({ default: false })
-  isActive: boolean;
+  isActive?: boolean;
 
-  @Prop({ type: String, enum: Role, default: [Role.USER] })
+  @Prop({ required: true, type: String, enum: Role, default: [Role.USER] })
   roles: string[];
 
   @Prop()
-  lastLogin: Date;
+  lastLogin?: Date;
 
   @Prop()
-  refreshToken: string;
+  refreshToken?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

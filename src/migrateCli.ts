@@ -1,0 +1,8 @@
+import { mongoMigrateCli as migrateCli } from 'mongo-migrate-ts';
+import { appConfig } from './config/config';
+
+export default migrateCli({
+  uri: `${appConfig.mongodb.uri}/${appConfig.mongodb.databaseName}`,
+  migrationsDir: `${appConfig.mongodb.migration.path}`,
+  migrationsCollection: appConfig.mongodb.migration.path,
+});
