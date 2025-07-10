@@ -7,6 +7,9 @@ export class User extends CommonDocument {
   @Prop({ required: true, unique: true })
   username: string;
 
+  @Prop({ required: true })
+  fullName: string;
+
   @Prop({ required: true, unique: true })
   email: string;
 

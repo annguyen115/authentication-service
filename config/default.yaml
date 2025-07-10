@@ -3,9 +3,11 @@ port: 3000
 mongodb:
   uri: mongodb://localhost:27017
   databaseName: authenticate
+  collections:
+    users: users
+    migrations: migrations_changelog
   migration:
-    path: src/migration
-    collectionName: migrations_changelog
+    path: src/migrations
 
 auth:
   salt: 10
