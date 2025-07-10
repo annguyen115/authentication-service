@@ -1,7 +1,8 @@
 import { Prop, Schema } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
 @Schema()
-export class CommonDocument extends Document {
+export class BaseDocument extends Document {
   @Prop({ default: Date.now })
   createdAt: Date;
 

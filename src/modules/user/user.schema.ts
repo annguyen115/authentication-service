@@ -1,9 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Role } from './user.enum';
-import { CommonDocument } from '@modules/common/common.schema';
+import { BaseDocument } from '@modules/base/base.schema';
 
 @Schema()
-export class User extends CommonDocument {
+export class User extends BaseDocument {
   @Prop({ required: true, unique: true })
   username: string;
 

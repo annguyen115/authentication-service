@@ -28,6 +28,12 @@
       "@utils/*": [
         "src/utils/*"
       ],
+      "@error/*": [
+        "src/error/*"
+      ],
+      "@interceptors/*": [
+        "src/interceptors/*"
+      ],
       "@/*": [
         "src/*"
       ]
