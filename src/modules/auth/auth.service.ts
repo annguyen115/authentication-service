@@ -1,26 +1,37 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { JwtExpiresIn, signToken, verifyToken } from '@utils/auth';
+import { appConfig } from '@config/config';
+import { UserPayload } from '@/types/user-payload';
+import { UnauthorizedError } from '@error/AppError';
+import { ErrorMessage } from '@error/ErrorCode';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  register(dto: any) {
+    // TODO: check email, hash password, save user to DB
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  login(dto: any) {
+    // TODO: find user, compare password
+    const user = { id: '1', username: 'harry', roles: ['user'] };
+
+    const accessToken = signToken(user, appConfig.auth.accessTokenExpire as JwtExpiresIn);
+    const refreshToken = signToken(user, appConfig.auth.refreshTokenExpire as JwtExpiresIn);
+
+    return { accessToken, refreshToken };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
+  refreshToken(token: string) {
+    try {
+      const user = verifyToken(token);
+      const newAccessToken = signToken(user as UserPayload, appConfig.auth.accessTokenExpire as JwtExpiresIn);
+      return { accessToken: newAccessToken };
+    } catch {
+      throw new UnauthorizedError(ErrorMessage.INVALID_TOKEN);
+    }
   }
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+  logout(token: string) {
+    return { message: 'Logged out successfully' };
   }
 }

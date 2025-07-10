@@ -1,42 +1,37 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-} from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { Body, Controller, Get, Post, Req } from '@nestjs/common';
+import { AuthService } from '@modules/auth/auth.service';
+import { LogoutRequestDto, RefreshTokenRequestDto } from '@modules/auth/auth.interface';
+import { UserPayload } from '@/types/user-payload';
+import { Auth } from '@decorators/auth.decorator';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private authService: AuthService) {}
 
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
+  @Post('register')
+  register(@Body() dto: any) {
+    this.authService.register(dto);
+    return { message: 'Register successful' };
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
+  @Post('login')
+  login(@Body() dto: any) {
+    return this.authService.login(dto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
+  @Post('refresh')
+  refresh(@Body() dto: RefreshTokenRequestDto) {
+    return this.authService.refreshToken(dto.refreshToken);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
+  @Post('logout')
+  logout(@Body() dto: LogoutRequestDto) {
+    return this.authService.logout(dto.refreshToken);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+  @Get('me')
+  @Auth('admin')
+  getProfile(@Req() req: Request): UserPayload | undefined {
+    return (req as Request & { user: UserPayload }).user;
   }
 }

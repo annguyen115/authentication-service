@@ -32,3 +32,12 @@ export const ErrorHttpStatusMap: Record<NonNullable<ErrorCode>, HttpStatusCode> 
   [ErrorCode.UNPROCESSABLE_ENTITY]: HttpStatusCode.UNPROCESSABLE_ENTITY,
   [ErrorCode.TOO_MANY_REQUESTS]: HttpStatusCode.TOO_MANY_REQUESTS,
 };
+
+export const ErrorMessage = {
+  MISSING_TOKEN: 'Missing token',
+  INVALID_TOKEN: 'Invalid token',
+  SOMETHING_WENT_WRONG: 'Something went wrong',
+  ACCESS_DENIED: 'Access denied',
+  INSUFFICIENT_ROLE: 'Insufficient role',
+  MISSING_OR_MALFORMED_TOKEN: 'Missing or malformed token',
+};

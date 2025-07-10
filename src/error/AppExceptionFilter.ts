@@ -1,7 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common';
 import { Response } from 'express';
 import { AppError } from './AppError';
-import { ErrorCode, ErrorHttpStatusMap, HttpStatusCode } from './ErrorCode';
+import { ErrorCode, ErrorHttpStatusMap, ErrorMessage, HttpStatusCode } from './ErrorCode';
 
 @Catch()
 export class AppExceptionFilter implements ExceptionFilter {
@@ -32,7 +32,7 @@ export class AppExceptionFilter implements ExceptionFilter {
     console.error('💥 Unhandled error', exception);
     response.status(500).json({
       statusCode: ErrorCode.INTERNAL,
-      errorMessage: 'Something went wrong',
+      errorMessage: ErrorMessage.SOMETHING_WENT_WRONG,
     });
   }
 }

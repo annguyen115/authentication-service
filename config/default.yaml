@@ -11,3 +11,6 @@ mongodb:
 
 auth:
   salt: 10
+  secret: this-is-my-secret
+  accessTokenExpire: 15m
+  refreshTokenExpire: 7d

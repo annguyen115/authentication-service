@@ -5,6 +5,9 @@ const ConfigSchema = z.object({
   port: z.number(),
   auth: z.object({
     salt: z.number(),
+    secret: z.string(),
+    accessTokenExpire: z.string(),
+    refreshTokenExpire: z.string(),
   }),
   mongodb: z.object({
     uri: z.string(),

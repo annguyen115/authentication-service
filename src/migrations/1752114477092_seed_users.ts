@@ -1,6 +1,6 @@
 import { Db } from 'mongodb';
 import { MigrationInterface } from 'mongo-migrate-ts';
-import { hashPassword } from '@utils/hash';
+import { hashPassword } from '@utils/auth';
 import { appConfig } from '@config/config';
 
 export enum Role {

@@ -18,6 +18,7 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
+    "include": ["src"],
     "paths": {
       "@modules/*": [
         "src/modules/*"
@@ -33,6 +34,18 @@
       ],
       "@interceptors/*": [
         "src/interceptors/*"
+      ],
+      "@guards/*": [
+        "src/guards/*"
+      ],
+      "@decorators/*": [
+        "src/decorators/*"
+      ],
+      "@middlewares/*": [
+        "src/middlewares/*"
+      ],
+      "@service-types/*": [
+        "src/types/*"
       ],
       "@/*": [
         "src/*"

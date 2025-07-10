@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { User } from '@modules/user/user.schema';
-import { hashPassword } from '@utils/hash';
+import { hashPassword } from '@utils/auth';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
