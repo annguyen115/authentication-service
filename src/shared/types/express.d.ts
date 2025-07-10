@@ -5,12 +5,6 @@ declare global {
     interface Request {
       user?: UserPayload;
     }
-
-    interface Response {
-      headers: {
-        authorization?: string;
-      };
-    }
   }
 }
 

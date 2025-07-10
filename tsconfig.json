@@ -44,8 +44,8 @@
       "@middlewares/*": [
         "src/middlewares/*"
       ],
-      "@service-types/*": [
-        "src/types/*"
+      "@shared/*": [
+        "src/shared/*"
       ],
       "@/*": [
         "src/*"

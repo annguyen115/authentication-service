@@ -4,7 +4,7 @@ import { NextFunction, Request, Response } from 'express';
 import { verifyToken } from '@utils/auth';
 import { UnauthorizedError } from '@error/AppError';
 import { ErrorMessage } from '@error/ErrorCode';
-import { UserPayload } from '@/types/user-payload';
+import { UserPayload } from '@shared/types/user-payload';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {

@@ -1,39 +1,27 @@
-import { ConflictException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { User } from '@modules/user/user.schema';
-import { hashPassword } from '@utils/auth';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-
-import { CreateUserDto } from '@modules/user/user.dto';
+import { Model, UpdateWriteOpResult } from 'mongoose';
 
 @Injectable()
 export class UserRepository {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
-  // @HttpCode(HttpStatus.CREATED)
-  async createUser(dto: CreateUserDto) {
-    try {
-      const existing = await this.userModel.findOne({ email: dto.email });
+  async findByUsernameOrEmail({ email, username }: { email: string; username: string }): Promise<User | null> {
+    return this.userModel.findOne({
+      $or: [{ username: username }, { email: email }],
+    });
+  }
 
-      if (existing) {
-        throw new ConflictException('Email already exists');
-      }
+  async findByRefreshToken(refreshToken: string): Promise<User | null> {
+    return this.userModel.findOne({ refreshToken: refreshToken });
+  }
 
-      const password = hashPassword(dto.password);
+  async updateRefreshToken(id: string, refreshToken: string): Promise<UpdateWriteOpResult> {
+    return this.userModel.updateOne({ _id: id }, { $set: { refreshToken: refreshToken, lastLogin: Date.now() } });
+  }
 
-      const createdUser = new this.userModel({
-        ...dto,
-        password: password,
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-
-      return await createdUser.save();
-    } catch (error) {
-      console.error('❌ Error creating user:', error);
-      if (error instanceof ConflictException) throw error;
-      throw new InternalServerErrorException('Failed to create user');
-    }
+  async removeRefreshToken(id: string): Promise<UpdateWriteOpResult> {
+    return this.userModel.updateOne({ _id: id }, { $unset: { refreshToken: null } });
   }
 }

@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import { appConfig } from '@config/config';
 import jwt from 'jsonwebtoken';
-import { UserPayload } from '@/types/user-payload';
+import { UserPayload } from '@shared/types/user-payload';
 
 const SALT_ROUNDS: number = appConfig.auth.salt || 10;
 export type JwtExpiresIn = `${number}${'s' | 'm' | 'h' | 'd'}` | number;

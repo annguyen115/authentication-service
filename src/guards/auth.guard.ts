@@ -1,10 +1,10 @@
 // libs/auth/auth.guard.ts
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Request } from 'express';
-import { UserPayload } from '@/types/user-payload';
 import { UnauthorizedError } from '@error/AppError';
 import { ErrorMessage } from '@error/ErrorCode';
 import { verifyToken } from '@utils/auth';
+import { UserPayload } from '@/shared/types/user-payload';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -21,7 +21,8 @@ export class AuthGuard implements CanActivate {
     try {
       req.user = verifyToken(token) as UserPayload;
       return true;
-    } catch {
+    } catch (e) {
+      console.log(e);
       throw new UnauthorizedError(ErrorMessage.INVALID_TOKEN);
     }
   }

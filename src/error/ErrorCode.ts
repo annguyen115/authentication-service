@@ -36,6 +36,7 @@ export const ErrorHttpStatusMap: Record<NonNullable<ErrorCode>, HttpStatusCode> 
 export const ErrorMessage = {
   MISSING_TOKEN: 'Missing token',
   INVALID_TOKEN: 'Invalid token',
+  INVALID_CREDENTIALS: 'Invalid credentials',
   SOMETHING_WENT_WRONG: 'Something went wrong',
   ACCESS_DENIED: 'Access denied',
   INSUFFICIENT_ROLE: 'Insufficient role',

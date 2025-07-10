@@ -11,6 +11,7 @@ export class AppExceptionFilter implements ExceptionFilter {
 
     if (exception instanceof AppError) {
       const httpCode = ErrorHttpStatusMap[exception.statusCode] || HttpStatusCode.INTERNAL_SERVER_ERROR;
+
       return response.status(httpCode).json({
         statusCode: exception.statusCode,
         errorMessage: exception.errorMessage,
@@ -18,19 +19,34 @@ export class AppExceptionFilter implements ExceptionFilter {
     }
 
     if (exception instanceof HttpException) {
+      const status = exception.getStatus();
       const res = exception.getResponse();
-      return response.status(exception.getStatus()).json(
-        typeof res === 'string'
-          ? {
-              statusCode: 'HTTP_ERROR',
-              errorMessage: res,
-            }
-          : res,
-      );
+
+      let errorMessage: string | string[] = 'Unexpected error';
+      let statusCode: string | number = 'HTTP_ERROR';
+
+      if (typeof res === 'string') {
+        errorMessage = res;
+      } else if (typeof res === 'object' && res !== null) {
+        const r = res as Record<string, any>;
+        statusCode = (r.statusCode as number) ?? statusCode;
+        // if (Array.isArray(r.message)) {
+        //   errorMessage = r.message.join(', ');
+        // } else {
+        //   errorMessage = (r.message as string) ?? errorMessage;
+        // }
+        errorMessage = (r.message as string | string[]) ?? errorMessage;
+      }
+
+      return response.status(status).json({
+        statusCode,
+        errorMessage,
+      });
     }
 
     console.error('💥 Unhandled error', exception);
-    response.status(500).json({
+
+    return response.status(500).json({
       statusCode: ErrorCode.INTERNAL,
       errorMessage: ErrorMessage.SOMETHING_WENT_WRONG,
     });

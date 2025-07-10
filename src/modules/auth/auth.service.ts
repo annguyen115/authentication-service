@@ -1,37 +1,87 @@
 import { Injectable } from '@nestjs/common';
-import { JwtExpiresIn, signToken, verifyToken } from '@utils/auth';
+import { comparePassword, JwtExpiresIn, signToken, verifyToken } from '@utils/auth';
 import { appConfig } from '@config/config';
-import { UserPayload } from '@/types/user-payload';
 import { UnauthorizedError } from '@error/AppError';
 import { ErrorMessage } from '@error/ErrorCode';
+import { LoginRequestPayloadDto } from '@modules/auth/dto/login.dto';
+import { isEmpty } from 'lodash/fp';
+import { UserRepository } from '@modules/user/user.repository';
+import { UserModel } from '@modules/user/user.schema';
+import { UserPayload } from '@shared/types/user-payload';
+import { Role } from '@shared/enums/Role.unum';
 
 @Injectable()
 export class AuthService {
-  register(dto: any) {
+  constructor(private readonly userRepository: UserRepository) {}
+
+  register() {
     // TODO: check email, hash password, save user to DB
   }
 
-  login(dto: any) {
-    // TODO: find user, compare password
-    const user = { id: '1', username: 'harry', roles: ['user'] };
+  async login(dto: LoginRequestPayloadDto) {
+    const { username, email, password } = dto;
 
-    const accessToken = signToken(user, appConfig.auth.accessTokenExpire as JwtExpiresIn);
-    const refreshToken = signToken(user, appConfig.auth.refreshTokenExpire as JwtExpiresIn);
+    // validate user from database
+    const user = await this.validateUser({ username, email, password });
+
+    // generate accessToken & refreshToken
+    const [accessToken, refreshToken] = await this.generateToken({
+      id: user.id as string,
+      username: user.username,
+      roles: user.roles,
+    });
 
     return { accessToken, refreshToken };
   }
 
-  refreshToken(token: string) {
+  async refreshToken(token: string) {
+    const user = await this.userRepository.findByRefreshToken(token);
+
+    if (isEmpty(user)) {
+      throw new UnauthorizedError(ErrorMessage.INVALID_TOKEN);
+    }
+
     try {
-      const user = verifyToken(token);
-      const newAccessToken = signToken(user as UserPayload, appConfig.auth.accessTokenExpire as JwtExpiresIn);
+      const userPayload = verifyToken(token);
+      const newAccessToken = signToken(userPayload as UserPayload, appConfig.auth.accessTokenExpire as JwtExpiresIn);
       return { accessToken: newAccessToken };
     } catch {
       throw new UnauthorizedError(ErrorMessage.INVALID_TOKEN);
     }
   }
 
-  logout(token: string) {
-    return { message: 'Logged out successfully' };
+  async logout(id: string): Promise<void> {
+    await this.userRepository.removeRefreshToken(id);
+  }
+
+  private async validateUser({ email, username, password }: { email: string; username: string; password: string }): Promise<UserModel> {
+    const user = await this.userRepository.findByUsernameOrEmail({ username, email });
+
+    if (isEmpty(user)) {
+      throw new UnauthorizedError(ErrorMessage.INVALID_CREDENTIALS);
+    }
+
+    const passwordsMatch = await comparePassword(password, user.password);
+
+    if (!passwordsMatch) {
+      throw new UnauthorizedError(ErrorMessage.INVALID_CREDENTIALS);
+    }
+
+    return user.toJSON() as UserModel;
+  }
+
+  private async generateToken({ username, roles, id }: { username: string; roles: Role[]; id: string }): Promise<[string, string]> {
+    const tokenPayload: UserPayload = {
+      username: username,
+      roles: roles,
+      id: id,
+    };
+
+    const accessToken = signToken(tokenPayload, appConfig.auth.accessTokenExpire as JwtExpiresIn);
+    const refreshToken = signToken(tokenPayload, appConfig.auth.refreshTokenExpire as JwtExpiresIn);
+
+    await this.userRepository.updateRefreshToken(id, refreshToken);
+
+    return [accessToken, refreshToken];
   }
 }

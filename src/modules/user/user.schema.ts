@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Role } from './user.enum';
-import { BaseDocument } from '@modules/base/base.schema';
+import { Role } from '@/shared/enums/Role.unum';
+import { BaseDocument, BaseModel, toJSONTransform } from '@modules/base/base.schema';
 
 @Schema()
 export class User extends BaseDocument {
@@ -19,8 +19,8 @@ export class User extends BaseDocument {
   @Prop({ default: false })
   isActive?: boolean;
 
-  @Prop({ required: true, type: String, enum: Role, default: [Role.USER] })
-  roles: string[];
+  @Prop({ required: true, type: [String], enum: Role, default: [Role.USER] })
+  roles: Role[];
 
   @Prop()
   lastLogin?: Date;
@@ -31,6 +31,8 @@ export class User extends BaseDocument {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-export type UserModel = User & { _id: string };
+export type UserModel = User & BaseModel;
 
 export type UserDocument = User & Document;
+
+UserSchema.set('toJSON', toJSONTransform());
