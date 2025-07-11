@@ -1,108 +1,162 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🔐 NestJS Authentication Service
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
+A robust, extensible authentication service built with **NestJS**, **MongoDB**, and **JWT**, including features like:
 
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+- ✅ Register / Login / Logout / Refresh Token
+- ✅ Role-based Access Control
+- ✅ Request/Response logging with sensitive field censoring
+- ✅ Global error handler & standardized response format
+- ✅ Modular architecture with DI & DTO validation
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## 📦 Tech Stack
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **NestJS** (v10+)
+- **MongoDB** via `mongoose`
+- **JWT** for access & refresh token handling
+- **Zod** for runtime config validation
+- **Pino** for logging
+- **Class-validator** for DTO validation
+- **TypeScript** strict mode
 
-## Project setup
+---
+
+## 🚀 Getting Started
 
 ```bash
-$ pnpm install
+# Install dependencies
+pnpm install
+
+# Setup environment
+cp config/default.yaml config/development.yaml
+
+# Run development
+pnpm start:dev
 ```
 
-## Compile and run the project
+---
+
+## 🔐 Auth Flow
+
+### Register
+```http
+POST /auth/register
+```
+
+### Login
+```http
+POST /auth/login
+```
+
+### Logout
+```http
+POST /auth/logout
+```
+
+### Refresh Token
+```http
+POST /auth/refresh
+```
+
+---
+
+## 🛡 Authorization
+
+- Add `@Roles('user')` to any controller
+- Guard stack:
+  - `AuthGuard` checks valid JWT
+  - `RolesGuard` validates user roles
+
+---
+
+## 🧰 Logging
+
+- Built-in request/response interceptor
+- Sensitive fields (`accessToken`, `refreshToken`, `password`, etc.) are censored
+- Configurable via:
+  ```yaml
+  logger:
+    sensitives:
+      - accessToken
+      - refreshToken
+      - password
+  ```
+
+---
+
+## 🧪 Testing
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+# Run unit tests
+pnpm test
 ```
 
-## Run tests
+---
 
-```bash
-# unit tests
-$ pnpm run test
+## 📂 Project Structure
 
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+```
+src/
+├── auth/              # Auth logic: login, register, refresh
+├── users/             # User model, DTO, controller
+├── common/            # Guards, decorators, interceptors
+├── config/            # Zod + YAML config loader
+├── utils/             # Helpers (e.g., password hashing)
+├── logger/            # LogService using pino
+├── main.ts            # App bootstrap
 ```
 
-## Deployment
+---
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it
-runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more
-information.
+## 📖 Configuration
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check
-out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment
-straightforward and fast, requiring just a few simple steps:
+Stored in YAML via [`config`](https://www.npmjs.com/package/config):
 
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+```yaml
+# config/default.yaml
+
+port: 3000
+
+auth:
+  secret: your_jwt_secret
+  salt: 10
+  accessTokenExpiresIn: 900  # seconds
+  refreshTokenExpiresIn: 604800
+
+mongodb:
+  uri: mongodb://localhost:27017
+  databaseName: authenticate
+  migration:
+    path: src/migration
+    collectionName: migrations_changelog
+
+logger:
+  sensitives:
+    - accessToken
+    - refreshToken
+    - password
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than
-managing infrastructure.
+---
 
-## Resources
+## ✅ Todo (Optional)
 
-Check out a few resources that may come in handy when working with NestJS:
+- [ ] Add email verification
+- [ ] Password reset flow
+- [ ] Audit logs
+- [ ] Rate limiting / brute-force prevention
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time
-  using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our
-  official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework)
-  and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+---
 
-## Support
+## 🧠 Tips
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If
-you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- Use `@User()` decorator to extract user info from token.
+- Logging interceptor auto-censors all sensitive data recursively.
+- Zod ensures config safety at boot time.
 
-## Stay in touch
+---
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## 📄 License
 
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+MIT
