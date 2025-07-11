@@ -3,12 +3,6 @@ import { z } from 'zod';
 
 const ConfigSchema = z.object({
   port: z.number(),
-  auth: z.object({
-    salt: z.number(),
-    secret: z.string(),
-    accessTokenExpire: z.string(),
-    refreshTokenExpire: z.string(),
-  }),
   mongodb: z.object({
     uri: z.string(),
     databaseName: z.string(),
@@ -19,6 +13,15 @@ const ConfigSchema = z.object({
     migration: z.object({
       path: z.string(),
     }),
+  }),
+  auth: z.object({
+    salt: z.number(),
+    secret: z.string(),
+    accessTokenExpire: z.string(),
+    refreshTokenExpire: z.string(),
+  }),
+  logger: z.object({
+    sensitives: z.array(z.string()),
   }),
 });
 type AppConfig = z.infer<typeof ConfigSchema>;

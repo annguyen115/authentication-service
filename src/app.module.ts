@@ -6,6 +6,8 @@ import { AuthModule } from '@modules/auth/auth.module';
 import { UserModule } from '@modules/user/user.module';
 import { User, UserSchema } from '@modules/user/user.schema';
 import { appConfig } from '@/config/config';
+import { LoggerModule } from 'nestjs-pino';
+import { LogModule } from '@modules/log/log.module';
 
 @Module({
   imports: [
@@ -16,8 +18,21 @@ import { appConfig } from '@/config/config';
         schema: UserSchema,
       },
     ]),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        redact: appConfig.logger.sensitives,
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            translateTime: 'SYS:standard',
+            colorize: true,
+          },
+        },
+      },
+    }),
     AuthModule,
     UserModule,
+    LogModule,
   ],
   controllers: [AppController],
   providers: [AppService],

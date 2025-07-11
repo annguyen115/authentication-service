@@ -15,8 +15,8 @@ export class AuthController extends BaseController {
   }
 
   @Post('register')
-  register(@Body() dto: any) {
-    this.authService.register(dto);
+  register() {
+    this.authService.register();
     return { message: 'Register successful' };
   }
 

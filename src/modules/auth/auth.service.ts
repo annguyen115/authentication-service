@@ -9,10 +9,14 @@ import { UserRepository } from '@modules/user/user.repository';
 import { UserModel } from '@modules/user/user.schema';
 import { UserPayload } from '@shared/types/user-payload';
 import { Role } from '@shared/enums/Role.unum';
+import { LogService } from '@modules/log/log.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly logService: LogService,
+  ) {}
 
   register() {
     // TODO: check email, hash password, save user to DB
@@ -22,6 +26,7 @@ export class AuthService {
     const { username, email, password } = dto;
 
     // validate user from database
+    this.logService.info(`Login with username: ${username}, email: ${email}`);
     const user = await this.validateUser({ username, email, password });
 
     // generate accessToken & refreshToken
@@ -30,6 +35,8 @@ export class AuthService {
       username: user.username,
       roles: user.roles,
     });
+
+    this.logService.info(`Login successful with username: ${accessToken}, email: ${refreshToken}`);
 
     return { accessToken, refreshToken };
   }
